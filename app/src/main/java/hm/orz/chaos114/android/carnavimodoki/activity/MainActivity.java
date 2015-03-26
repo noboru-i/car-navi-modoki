@@ -1,5 +1,6 @@
 package hm.orz.chaos114.android.carnavimodoki.activity;
 
+import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -8,15 +9,15 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import hm.orz.chaos114.android.carnavimodoki.R;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
+import hm.orz.chaos114.android.carnavimodoki.fragment.AlbumFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.ArtistFragment;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity
+        implements ArtistFragment.OnArtistSelectedListener {
     private static final String ALBUM_ARTIST = "album_artist";
     private static final String[] COLUMNS = new String[]{
             MediaStore.Audio.Media._ID,
@@ -28,6 +29,7 @@ public class MainActivity extends ActionBarActivity {
             MediaStore.Audio.Media.TITLE
     };
 
+    //region Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +56,28 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+    //endregion
+
+    //region ArtistFragment.OnArtistSelectedListener
+    @Override
+    public void onArtistSelected(String artist) {
+        AlbumFragment fragment = AlbumFragment.newInstance(artist);
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(android.R.id.content, fragment, "album");
+        ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.commit();
+    }
+    //endregion
 
     private void initContent() {
         long count = Music.getCount();
