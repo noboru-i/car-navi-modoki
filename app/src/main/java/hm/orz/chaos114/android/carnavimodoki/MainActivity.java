@@ -9,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -60,17 +59,15 @@ public class MainActivity extends ActionBarActivity {
 
     private void initContent() {
         long count = Music.getCount();
-        List<Music> musics;
         if (count == 0) {
             ContentResolver cr = getApplicationContext().getContentResolver();
             Cursor cursor = cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     COLUMNS,
-                    null,
+                    MediaStore.Audio.Media.IS_MUSIC + " != 0",
                     null,
                     ALBUM_ARTIST + " ASC, " + MediaStore.Audio.Media.ALBUM_ID + " ASC");
             cursor.moveToFirst();
 
-            musics = new ArrayList<>();
             while (cursor.moveToNext()) {
                 String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
                 String artist = cursor.getString(cursor.getColumnIndex(ALBUM_ARTIST));
@@ -83,15 +80,17 @@ public class MainActivity extends ActionBarActivity {
                 music.setArtist(artist);
                 music.setAlbum(album);
                 music.save();
-                musics.add(music);
             }
             cursor.close();
-        } else {
-            musics = Music.all();
         }
+        List<String> artists = Music.fetchArtists();
 
-        for (Music music : musics) {
-            mTextView.append(music.getArtist() + "/" + music.getAlbum() + "/" + music.getTitle() + "\n");
+        for (String artist : artists) {
+            mTextView.append(artist + "\n");
+            List<String> artistMusics = Music.fetchAlbums(artist);
+            for (String albumTitle : artistMusics) {
+                mTextView.append("\t" + albumTitle + "\n");
+            }
         }
     }
 }
