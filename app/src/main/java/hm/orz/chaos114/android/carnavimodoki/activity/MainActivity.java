@@ -2,6 +2,7 @@ package hm.orz.chaos114.android.carnavimodoki.activity;
 
 import android.app.FragmentTransaction;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import hm.orz.chaos114.android.carnavimodoki.R;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
 import hm.orz.chaos114.android.carnavimodoki.fragment.AlbumFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.ArtistFragment;
+import hm.orz.chaos114.android.carnavimodoki.service.MusicService;
 
 public class MainActivity extends ActionBarActivity
         implements ArtistFragment.OnArtistSelectedListener {
@@ -34,6 +36,8 @@ public class MainActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        startService(new Intent(this, MusicService.class));
 
         ButterKnife.inject(this);
 
@@ -98,6 +102,7 @@ public class MainActivity extends ActionBarActivity
                 cursor.moveToFirst();
 
                 while (cursor.moveToNext()) {
+                    String id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
                     String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
                     String artist = cursor.getString(cursor.getColumnIndex(ALBUM_ARTIST));
                     String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
@@ -105,6 +110,7 @@ public class MainActivity extends ActionBarActivity
                         artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
                     }
                     Music music = new Music();
+                    music.setMediaId(id);
                     music.setTitle(title);
                     music.setArtist(artist);
                     music.setAlbum(album);

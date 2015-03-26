@@ -3,11 +3,14 @@ package hm.orz.chaos114.android.carnavimodoki.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -15,14 +18,19 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
+import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.R;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
+import hm.orz.chaos114.android.carnavimodoki.service.MusicService;
 
 public class AlbumFragment extends Fragment {
     private static final String ARG_ARTIST = "artist";
 
     @InjectView(R.id.list)
     ListView mListView;
+    @InjectView(R.id.start_stop_button)
+    Button mStartStopButton;
 
     private String mArtist;
 
@@ -50,6 +58,17 @@ public class AlbumFragment extends Fragment {
 
         fetchAlbums();
         return view;
+    }
+
+    @OnClick(R.id.start_stop_button)
+    void onClickStartStop() {
+        mStartStopButton.setSelected(!mStartStopButton.isSelected());
+
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+        editor.putString("media_id", Music.all().get(0).getMediaId());
+        editor.commit();
+
+        App.Bus().post(MusicService.ControlEvent.START);
     }
 
     private void fetchAlbums() {
