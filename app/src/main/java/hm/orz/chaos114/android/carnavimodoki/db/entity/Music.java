@@ -2,7 +2,6 @@ package hm.orz.chaos114.android.carnavimodoki.db.entity;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
-import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@Table(name = "Musics")
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class Music extends Model {
@@ -55,5 +53,12 @@ public class Music extends Model {
             albums.add(music.getAlbum());
         }
         return albums;
+    }
+
+    public static List<Music> fetchByAlbum(String album) {
+        return new Select()
+                .from(Music.class)
+                .where("album = ?", album)
+                .execute();
     }
 }

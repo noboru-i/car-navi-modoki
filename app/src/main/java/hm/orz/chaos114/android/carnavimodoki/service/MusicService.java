@@ -14,8 +14,10 @@ import android.provider.MediaStore;
 import com.squareup.otto.Subscribe;
 
 import java.io.IOException;
+import java.util.List;
 
 import hm.orz.chaos114.android.carnavimodoki.App;
+import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
 
 public class MusicService extends Service {
     public enum ControlEvent {
@@ -54,13 +56,17 @@ public class MusicService extends Service {
     public void subscribeControlEvent(ControlEvent event) {
         switch (event) {
             case START:
+                if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.stop();
+                }
                 mMediaPlayer = new MediaPlayer();
-                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-                String mediaId = sp.getString("media_id", null);
-                if (mediaId == null) {
+
+                List<PlayListEntity> playList = PlayListEntity.all();
+                if (playList == null) {
                     return;
                 }
                 try {
+                    String mediaId = playList.get(0).getMusic().getMediaId();
                     mMediaPlayer.setDataSource(getApplicationContext(), Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaId));
                     mMediaPlayer.setLooping(false);
                     mMediaPlayer.prepare();

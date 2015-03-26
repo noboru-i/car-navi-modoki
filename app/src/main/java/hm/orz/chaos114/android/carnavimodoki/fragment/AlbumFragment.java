@@ -3,9 +3,8 @@ package hm.orz.chaos114.android.carnavimodoki.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,7 @@ import butterknife.OnClick;
 import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.R;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
+import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
 import hm.orz.chaos114.android.carnavimodoki.service.MusicService;
 
 public class AlbumFragment extends Fragment {
@@ -64,9 +64,17 @@ public class AlbumFragment extends Fragment {
     void onClickStartStop() {
         mStartStopButton.setSelected(!mStartStopButton.isSelected());
 
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
-        editor.putString("media_id", Music.all().get(0).getMediaId());
-        editor.commit();
+        PlayListEntity.reset();
+        for (int i = 0; i < mListView.getCount(); i++) {
+            String album = (String) mListView.getItemAtPosition(i);
+            List<Music> musics = Music.fetchByAlbum(album);
+            for (Music music : musics) {
+                PlayListEntity entity = new PlayListEntity();
+                entity.setMusic(music);
+                entity.saveNext();
+                Log.d("hoge", "entity is " + entity);
+            }
+        }
 
         App.Bus().post(MusicService.ControlEvent.START);
     }
