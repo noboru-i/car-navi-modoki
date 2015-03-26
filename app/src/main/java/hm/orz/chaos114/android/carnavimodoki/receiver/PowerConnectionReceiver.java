@@ -1,4 +1,4 @@
-package hm.orz.chaos114.android.carnavimodoki;
+package hm.orz.chaos114.android.carnavimodoki.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
