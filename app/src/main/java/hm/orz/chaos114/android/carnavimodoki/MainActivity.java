@@ -9,8 +9,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
 
 public class MainActivity extends ActionBarActivity {
     private static final String ALBUM_ARTIST = "album_artist";
@@ -55,22 +59,39 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void initContent() {
-        ContentResolver cr = getApplicationContext().getContentResolver();
-        Cursor cursor = cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                COLUMNS,
-                null,
-                null,
-                ALBUM_ARTIST + " ASC, " + MediaStore.Audio.Media.ALBUM_ID + " ASC");
-        cursor.moveToFirst();
+        long count = Music.getCount();
+        List<Music> musics;
+        if (count == 0) {
+            ContentResolver cr = getApplicationContext().getContentResolver();
+            Cursor cursor = cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    COLUMNS,
+                    null,
+                    null,
+                    ALBUM_ARTIST + " ASC, " + MediaStore.Audio.Media.ALBUM_ID + " ASC");
+            cursor.moveToFirst();
 
-        while (cursor.moveToNext()) {
-            String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-            String artist = cursor.getString(cursor.getColumnIndex(ALBUM_ARTIST));
-            String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-            if (artist == null) {
-                artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+            musics = new ArrayList<>();
+            while (cursor.moveToNext()) {
+                String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+                String artist = cursor.getString(cursor.getColumnIndex(ALBUM_ARTIST));
+                String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+                if (artist == null) {
+                    artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+                }
+                Music music = new Music();
+                music.setTitle(title);
+                music.setArtist(artist);
+                music.setAlbum(album);
+                music.save();
+                musics.add(music);
             }
-            mTextView.append(artist + "/" + album + "/" + title + "\n");
+            cursor.close();
+        } else {
+            musics = Music.all();
+        }
+
+        for (Music music : musics) {
+            mTextView.append(music.getArtist() + "/" + music.getAlbum() + "/" + music.getTitle() + "\n");
         }
     }
 }
