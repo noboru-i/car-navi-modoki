@@ -1,10 +1,8 @@
 package hm.orz.chaos114.android.carnavimodoki.fragment;
 
-
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.squareup.otto.Subscribe;
 
 import java.util.List;
 
@@ -46,6 +46,7 @@ public class AlbumFragment extends Fragment {
     public AlbumFragment() {
     }
 
+    //region Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -56,14 +57,31 @@ public class AlbumFragment extends Fragment {
             mArtist = getArguments().getString(ARG_ARTIST);
         }
 
+        setStartStopButtonText();
+
         fetchAlbums();
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        App.Bus().register(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        App.Bus().unregister(this);
+    }
+    //endregion
+
     @OnClick(R.id.start_stop_button)
     void onClickStartStop() {
-        mStartStopButton.setSelected(!mStartStopButton.isSelected());
-
+        if (App.Models().getPlayingModel().isPlaying()) {
+            App.Bus().post(MusicService.ControlEvent.PAUSE);
+            return;
+        }
         PlayListEntity.reset();
         for (int i = 0; i < mListView.getCount(); i++) {
             String album = (String) mListView.getItemAtPosition(i);
@@ -72,7 +90,6 @@ public class AlbumFragment extends Fragment {
                 PlayListEntity entity = new PlayListEntity();
                 entity.setMusic(music);
                 entity.saveNext();
-                Log.d("hoge", "entity is " + entity);
             }
         }
 
@@ -89,12 +106,32 @@ public class AlbumFragment extends Fragment {
         App.Bus().post(MusicService.ControlEvent.NEXT);
     }
 
+    @Subscribe
+    public void subscribeMusicState(MusicService.State state) {
+        switch (state) {
+            case PLAY:
+                setStartStopButtonText();
+                break;
+            case PAUSE:
+                setStartStopButtonText();
+                break;
+        }
+    }
+
     private void fetchAlbums() {
 
         List<String> albums = Music.fetchAlbums(mArtist);
 
         AlbumAdapter adapter = new AlbumAdapter(getActivity(), 0, albums);
         mListView.setAdapter(adapter);
+    }
+
+    private void setStartStopButtonText() {
+        if (App.Models().getPlayingModel().isPlaying()) {
+            mStartStopButton.setText("停止");
+        } else {
+            mStartStopButton.setText("再生");
+        }
     }
 
     static class AlbumAdapter extends ArrayAdapter<String> {

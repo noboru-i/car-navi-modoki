@@ -24,6 +24,14 @@ import lombok.Setter;
 public class MusicService extends Service {
     public enum ControlEvent {
         START,
+        PLAY,
+        PAUSE,
+        NEXT,
+        PREV
+    }
+
+    public enum State {
+        PLAY,
         PAUSE,
         NEXT,
         PREV
@@ -93,16 +101,25 @@ public class MusicService extends Service {
                 }
                 mPlayList.setList(playList);
                 playCurrent();
+                changeState(State.PLAY);
+                break;
+            case PLAY:
+                playCurrent();
+                changeState(State.PLAY);
                 break;
             case PAUSE:
+                pause();
+                changeState(State.PAUSE);
                 break;
             case NEXT:
                 mPlayList.next();
                 playCurrent();
+                changeState(State.NEXT);
                 break;
             case PREV:
                 mPlayList.prev();
                 playCurrent();
+                changeState(State.PREV);
                 break;
         }
     }
@@ -118,5 +135,15 @@ public class MusicService extends Service {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        App.Models().getPlayingModel().setPlaying(true);
+    }
+
+    private void pause() {
+        mMediaPlayer.pause();
+        App.Models().getPlayingModel().setPlaying(false);
+    }
+
+    private void changeState(State state) {
+        App.Bus().post(state);
     }
 }
