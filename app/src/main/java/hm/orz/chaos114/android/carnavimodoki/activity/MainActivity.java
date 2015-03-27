@@ -4,8 +4,10 @@ import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -13,15 +15,18 @@ import android.view.MenuItem;
 
 import butterknife.ButterKnife;
 import hm.orz.chaos114.android.carnavimodoki.R;
+import hm.orz.chaos114.android.carnavimodoki.db.entity.Movie;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
 import hm.orz.chaos114.android.carnavimodoki.fragment.AlbumFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.ArtistFragment;
+import hm.orz.chaos114.android.carnavimodoki.fragment.MoviesFragment;
 import hm.orz.chaos114.android.carnavimodoki.service.MusicService;
 
 public class MainActivity extends ActionBarActivity
-        implements ArtistFragment.OnArtistSelectedListener {
+        implements ArtistFragment.OnArtistSelectedListener,
+        MoviesFragment.OnMovieSelectedListener {
     private static final String ALBUM_ARTIST = "album_artist";
-    private static final String[] COLUMNS = new String[]{
+    private static final String[] MUSIC_COLUMNS = new String[]{
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.ARTIST,
             ALBUM_ARTIST,
@@ -29,6 +34,14 @@ public class MainActivity extends ActionBarActivity
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.TRACK,
             MediaStore.Audio.Media.TITLE
+    };
+
+    private static final String[] VIDEO_COLUMNS = new String[]{
+            MediaStore.Video.Media._ID,
+            MediaStore.Video.Media.ARTIST,
+            MediaStore.Video.Media.ALBUM,
+            MediaStore.Video.Media.DURATION,
+            MediaStore.Video.Media.TITLE
     };
 
     //region Activity
@@ -41,7 +54,7 @@ public class MainActivity extends ActionBarActivity
 
         ButterKnife.inject(this);
 
-        initContent();
+        scan();
     }
 
     @Override
@@ -83,25 +96,54 @@ public class MainActivity extends ActionBarActivity
     }
     //endregion
 
+    //region MoviesFragment.OnMovieSelectedListener
+    @Override
+    public void onMovieSelected(String movie) {
+
+    }
+    //endregion
+
+    private void scan() {
+        MediaScannerConnection.scanFile(getApplicationContext(),
+                new String[]{Environment.getExternalStorageDirectory().toString()},
+                null,
+                (path, uri) -> {
+                    initContent();
+                });
+    }
+
     private void initContent() {
         long count = Music.getCount();
         if (count != 0) {
-            addArtistFragment();
+//            addArtistFragment();
+            addMoviesFragment();
             return;
         }
 
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
+                initMusic();
+                initMovie();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+//                addArtistFragment();
+                addMoviesFragment();
+            }
+
+            private void initMusic() {
                 ContentResolver cr = getApplicationContext().getContentResolver();
                 Cursor cursor = cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        COLUMNS,
+                        MUSIC_COLUMNS,
                         MediaStore.Audio.Media.IS_MUSIC + " != 0",
                         null,
-                        ALBUM_ARTIST + " ASC, " + MediaStore.Audio.Media.ALBUM_ID + " ASC");
+                        null);
                 cursor.moveToFirst();
 
-                while (cursor.moveToNext()) {
+                do {
                     String id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
                     String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
                     String artist = cursor.getString(cursor.getColumnIndex(ALBUM_ARTIST));
@@ -115,14 +157,28 @@ public class MainActivity extends ActionBarActivity
                     music.setArtist(artist);
                     music.setAlbum(album);
                     music.save();
-                }
+                } while(cursor.moveToNext());
                 cursor.close();
-                return null;
             }
 
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                addArtistFragment();
+            private void initMovie() {
+                ContentResolver cr = getApplicationContext().getContentResolver();
+                Cursor cursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                        VIDEO_COLUMNS,
+                        null,
+                        null,
+                        null);
+                cursor.moveToFirst();
+
+                do {
+                    String id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
+                    String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+                    Movie movie = new Movie();
+                    movie.setMediaId(id);
+                    movie.setTitle(title);
+                    movie.save();
+                } while(cursor.moveToNext());
+                cursor.close();
             }
         }.execute();
     }
@@ -130,5 +186,10 @@ public class MainActivity extends ActionBarActivity
     private void addArtistFragment() {
         ArtistFragment fragment = new ArtistFragment();
         getFragmentManager().beginTransaction().add(android.R.id.content, fragment, "artist").commit();
+    }
+
+    private void addMoviesFragment() {
+        MoviesFragment fragment = new MoviesFragment();
+        getFragmentManager().beginTransaction().add(android.R.id.content, fragment, "movies").commit();
     }
 }

@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class Music extends Model {
-    @Column(name = "media_id")
+    @Column(name = "media_id", unique = true)
     private String mediaId;
     @Column(name = "artist")
     private String artist;
