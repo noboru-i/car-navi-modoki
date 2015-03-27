@@ -18,15 +18,39 @@ import java.util.List;
 
 import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
+import lombok.Data;
+import lombok.Setter;
 
 public class MusicService extends Service {
     public enum ControlEvent {
         START,
-        PAUSE
+        PAUSE,
+        NEXT,
+        PREV
+    }
+
+    static class PlayList {
+        @Setter
+        private List<PlayListEntity> list;
+        private int currentIndex;
+
+        PlayListEntity getCurrentEntity() {
+            return list.get(currentIndex);
+        }
+
+        void next() {
+            currentIndex++;
+        }
+
+        void prev() {
+            currentIndex--;
+        }
     }
 
     private AudioManager mAudioManager;
     private MediaPlayer mMediaPlayer;
+
+    private PlayList mPlayList;
 
     public MusicService() {
     }
@@ -40,6 +64,8 @@ public class MusicService extends Service {
     public void onCreate() {
         App.Bus().register(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+        mPlayList = new PlayList();
     }
 
     @Override
@@ -65,18 +91,32 @@ public class MusicService extends Service {
                 if (playList == null) {
                     return;
                 }
-                try {
-                    String mediaId = playList.get(0).getMusic().getMediaId();
-                    mMediaPlayer.setDataSource(getApplicationContext(), Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaId));
-                    mMediaPlayer.setLooping(false);
-                    mMediaPlayer.prepare();
-                    mMediaPlayer.start();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                mPlayList.setList(playList);
+                playCurrent();
                 break;
             case PAUSE:
                 break;
+            case NEXT:
+                mPlayList.next();
+                playCurrent();
+                break;
+            case PREV:
+                mPlayList.prev();
+                playCurrent();
+                break;
+        }
+    }
+
+    private void playCurrent() {
+        try {
+            String mediaId = mPlayList.getCurrentEntity().getMusic().getMediaId();
+            mMediaPlayer.reset();
+            mMediaPlayer.setDataSource(getApplicationContext(), Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaId));
+            mMediaPlayer.setLooping(false);
+            mMediaPlayer.prepare();
+            mMediaPlayer.start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -6,10 +6,20 @@
               tools:context="hm.orz.chaos114.android.carnavimodoki.fragment.AlbumFragment">
 
     <Button
+        android:id="@+id/prev_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="前へ"/>
+    <Button
         android:id="@+id/start_stop_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="再生"/>
+    <Button
+        android:id="@+id/next_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="次へ"/>
 
     <ListView
         android:id="@+id/list"

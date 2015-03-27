@@ -79,6 +79,16 @@ public class AlbumFragment extends Fragment {
         App.Bus().post(MusicService.ControlEvent.START);
     }
 
+    @OnClick(R.id.prev_button)
+    void onClickPrev() {
+        App.Bus().post(MusicService.ControlEvent.PREV);
+    }
+
+    @OnClick(R.id.next_button)
+    void onClickNext() {
+        App.Bus().post(MusicService.ControlEvent.NEXT);
+    }
+
     private void fetchAlbums() {
 
         List<String> albums = Music.fetchAlbums(mArtist);
