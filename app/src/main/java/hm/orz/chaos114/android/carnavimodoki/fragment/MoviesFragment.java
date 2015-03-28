@@ -23,7 +23,7 @@ import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
 public class MoviesFragment extends Fragment {
 
     public interface OnMovieSelectedListener {
-        void onMovieSelected(String movie);
+        void onMovieSelected(Movie movie);
     }
 
     @InjectView(R.id.list)
@@ -64,7 +64,7 @@ public class MoviesFragment extends Fragment {
 
     @OnItemClick(R.id.list)
     void onItemClick(int position) {
-        String movie = (String) mListView.getItemAtPosition(position);
+        Movie movie = (Movie) mListView.getItemAtPosition(position);
         mListener.onMovieSelected(movie);
     }
 

@@ -98,8 +98,10 @@ public class MainActivity extends ActionBarActivity
 
     //region MoviesFragment.OnMovieSelectedListener
     @Override
-    public void onMovieSelected(String movie) {
-
+    public void onMovieSelected(Movie movie) {
+        Intent intent = new Intent(this, MoviePlayActivity.class);
+        intent.putExtra(MoviePlayActivity.EXTRA_MEDIA_ID, movie.getMediaId());
+        startActivity(intent);
     }
     //endregion
 
