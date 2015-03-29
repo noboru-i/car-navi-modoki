@@ -22,6 +22,7 @@ import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.R;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
+import hm.orz.chaos114.android.carnavimodoki.model.PlayingModel;
 import hm.orz.chaos114.android.carnavimodoki.service.MusicService;
 
 public class AlbumFragment extends Fragment {
@@ -31,8 +32,11 @@ public class AlbumFragment extends Fragment {
     ListView mListView;
     @InjectView(R.id.start_stop_button)
     Button mStartStopButton;
+    @InjectView(R.id.artist_name)
+    TextView mArtistNameView;
 
     private String mArtist;
+    private PlayingModel mPlayingModel;
 
     public static AlbumFragment newInstance(String artist) {
         final AlbumFragment f = new AlbumFragment();
@@ -56,10 +60,13 @@ public class AlbumFragment extends Fragment {
         if (getArguments() != null) {
             mArtist = getArguments().getString(ARG_ARTIST);
         }
+        mPlayingModel = App.Models().getPlayingModel();
 
         setStartStopButtonText();
 
         fetchAlbums();
+        mArtistNameView.setText(mArtist);
+
         return view;
     }
 
@@ -82,7 +89,7 @@ public class AlbumFragment extends Fragment {
             App.Bus().post(MusicService.ControlEvent.PAUSE);
             return;
         }
-        PlayListEntity.reset();
+        mPlayingModel.reset();
         for (int i = 0; i < mListView.getCount(); i++) {
             String album = (String) mListView.getItemAtPosition(i);
             List<Music> musics = Music.fetchByAlbum(album);

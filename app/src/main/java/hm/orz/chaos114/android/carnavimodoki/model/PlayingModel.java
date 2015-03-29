@@ -15,7 +15,17 @@ public class PlayingModel {
     }
 
     public PlayListEntity getCurrentEntity() {
-        return PlayListEntity.findByNumber(currentTrackNumber);
+        PlayListEntity entity = PlayListEntity.findByNumber(currentTrackNumber);
+        if (entity == null) {
+            currentTrackNumber = 1;
+            entity = PlayListEntity.findByNumber(currentTrackNumber);
+        }
+
+        return entity;
+    }
+
+    public void reset() {
+        PlayListEntity.reset();
     }
 
     public void next() {
