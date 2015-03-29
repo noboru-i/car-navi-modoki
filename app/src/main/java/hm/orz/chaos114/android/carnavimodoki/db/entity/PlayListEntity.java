@@ -25,6 +25,13 @@ public class PlayListEntity extends Model {
                 .execute();
     }
 
+    public static PlayListEntity findByNumber(int number) {
+        return new Select()
+                .from(PlayListEntity.class)
+                .where("number = ?", number)
+                .executeSingle();
+    }
+
     public static void reset() {
         new Delete().from(PlayListEntity.class).execute();
     }

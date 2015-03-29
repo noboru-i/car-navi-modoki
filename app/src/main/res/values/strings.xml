@@ -2,4 +2,5 @@
     <string name="app_name">CarNaviModoki</string>
 
     <string name="action_settings">Settings</string>
+    <string name="action_play_list">PlayList</string>
 </resources>

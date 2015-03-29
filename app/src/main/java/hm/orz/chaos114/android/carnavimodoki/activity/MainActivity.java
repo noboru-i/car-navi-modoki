@@ -1,5 +1,6 @@
 package hm.orz.chaos114.android.carnavimodoki.activity;
 
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -17,14 +18,17 @@ import butterknife.ButterKnife;
 import hm.orz.chaos114.android.carnavimodoki.R;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Movie;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
+import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
 import hm.orz.chaos114.android.carnavimodoki.fragment.AlbumFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.ArtistFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.MoviesFragment;
+import hm.orz.chaos114.android.carnavimodoki.fragment.PlayListFragment;
 import hm.orz.chaos114.android.carnavimodoki.service.MusicService;
 
 public class MainActivity extends ActionBarActivity
         implements ArtistFragment.OnArtistSelectedListener,
-        MoviesFragment.OnMovieSelectedListener {
+        MoviesFragment.OnMovieSelectedListener,
+        PlayListFragment.OnPlayListItemSelectedListener {
     private static final String ALBUM_ARTIST = "album_artist";
     private static final String[] MUSIC_COLUMNS = new String[]{
             MediaStore.Audio.Media._ID,
@@ -67,8 +71,16 @@ public class MainActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_play_list:
+                Fragment fragment = new PlayListFragment();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(android.R.id.content, fragment, "play_list");
+                ft.addToBackStack(null);
+                ft.commit();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -105,6 +117,13 @@ public class MainActivity extends ActionBarActivity
     }
     //endregion
 
+    //region PlayListFragment.OnPlayListItemSelectedListener
+    @Override
+    public void onPlayListItemSelected(PlayListEntity entity) {
+        // TODO 現状不要
+    }
+    //endregion
+
     private void scan() {
         MediaScannerConnection.scanFile(getApplicationContext(),
                 new String[]{Environment.getExternalStorageDirectory().toString()},
@@ -117,8 +136,8 @@ public class MainActivity extends ActionBarActivity
     private void initContent() {
         long count = Music.getCount();
         if (count != 0) {
-//            addArtistFragment();
-            addMoviesFragment();
+            addArtistFragment();
+//            addMoviesFragment();
             return;
         }
 
@@ -132,8 +151,8 @@ public class MainActivity extends ActionBarActivity
 
             @Override
             protected void onPostExecute(Void aVoid) {
-//                addArtistFragment();
-                addMoviesFragment();
+                addArtistFragment();
+//                addMoviesFragment();
             }
 
             private void initMusic() {
@@ -159,7 +178,7 @@ public class MainActivity extends ActionBarActivity
                     music.setArtist(artist);
                     music.setAlbum(album);
                     music.save();
-                } while(cursor.moveToNext());
+                } while (cursor.moveToNext());
                 cursor.close();
             }
 
@@ -179,7 +198,7 @@ public class MainActivity extends ActionBarActivity
                     movie.setMediaId(id);
                     movie.setTitle(title);
                     movie.save();
-                } while(cursor.moveToNext());
+                } while (cursor.moveToNext());
                 cursor.close();
             }
         }.execute();

@@ -18,6 +18,7 @@ import java.util.List;
 
 import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
+import hm.orz.chaos114.android.carnavimodoki.model.PlayingModel;
 import lombok.Data;
 import lombok.Setter;
 
@@ -37,28 +38,10 @@ public class MusicService extends Service {
         PREV
     }
 
-    static class PlayList {
-        @Setter
-        private List<PlayListEntity> list;
-        private int currentIndex;
-
-        PlayListEntity getCurrentEntity() {
-            return list.get(currentIndex);
-        }
-
-        void next() {
-            currentIndex++;
-        }
-
-        void prev() {
-            currentIndex--;
-        }
-    }
-
     private AudioManager mAudioManager;
     private MediaPlayer mMediaPlayer;
 
-    private PlayList mPlayList;
+    private PlayingModel mPlayingModel;
 
     public MusicService() {
     }
@@ -73,7 +56,9 @@ public class MusicService extends Service {
         App.Bus().register(this);
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
-        mPlayList = new PlayList();
+        mPlayingModel = App.Models().getPlayingModel();
+
+        mMediaPlayer = new MediaPlayer();
     }
 
     @Override
@@ -90,16 +75,6 @@ public class MusicService extends Service {
     public void subscribeControlEvent(ControlEvent event) {
         switch (event) {
             case START:
-                if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-                    mMediaPlayer.stop();
-                }
-                mMediaPlayer = new MediaPlayer();
-
-                List<PlayListEntity> playList = PlayListEntity.all();
-                if (playList == null) {
-                    return;
-                }
-                mPlayList.setList(playList);
                 playCurrent();
                 changeState(State.PLAY);
                 break;
@@ -112,12 +87,12 @@ public class MusicService extends Service {
                 changeState(State.PAUSE);
                 break;
             case NEXT:
-                mPlayList.next();
+                mPlayingModel.next();
                 playCurrent();
                 changeState(State.NEXT);
                 break;
             case PREV:
-                mPlayList.prev();
+                mPlayingModel.prev();
                 playCurrent();
                 changeState(State.PREV);
                 break;
@@ -126,7 +101,7 @@ public class MusicService extends Service {
 
     private void playCurrent() {
         try {
-            String mediaId = mPlayList.getCurrentEntity().getMusic().getMediaId();
+            String mediaId = mPlayingModel.getCurrentEntity().getMusic().getMediaId();
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(getApplicationContext(), Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaId));
             mMediaPlayer.setLooping(false);
