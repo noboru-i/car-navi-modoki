@@ -8,13 +8,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.squareup.otto.Subscribe;
 
 import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import butterknife.OnItemClick;
 import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.R;
@@ -26,6 +30,8 @@ public class PlayListFragment extends Fragment {
 
     @InjectView(R.id.list)
     ListView mListView;
+    @InjectView(R.id.start_stop_button)
+    Button mStartStopButton;
 
     private OnPlayListItemSelectedListener mListener;
     private PlayingModel mPlayingModel;
@@ -33,6 +39,7 @@ public class PlayListFragment extends Fragment {
     public PlayListFragment() {
     }
 
+    //region Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -42,17 +49,9 @@ public class PlayListFragment extends Fragment {
 
         mPlayingModel = App.Models().getPlayingModel();
 
+        setStartStopButtonText();
         fetchPlayList();
         return view;
-    }
-
-    @OnItemClick(R.id.list)
-    void onItemClick(int position) {
-        PlayListEntity entity = (PlayListEntity) mListView.getItemAtPosition(position);
-        mPlayingModel.setCurrentTrackNumber(entity.getNumber());
-        mListener.onPlayListItemSelected(entity);
-
-        App.Bus().post(MusicService.ControlEvent.PLAY);
     }
 
     @Override
@@ -72,9 +71,75 @@ public class PlayListFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        App.Bus().register(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        App.Bus().unregister(this);
+    }
+    //endregion
+
+    //region ButterKnife
+    @OnItemClick(R.id.list)
+    void onItemClick(int position) {
+        PlayListEntity entity = (PlayListEntity) mListView.getItemAtPosition(position);
+        mPlayingModel.setCurrentTrackNumber(entity.getNumber());
+        mListener.onPlayListItemSelected(entity);
+
+        App.Bus().post(MusicService.ControlEvent.PLAY);
+    }
+
+    @OnClick(R.id.start_stop_button)
+    void onClickStartStop() {
+        if (App.Models().getPlayingModel().isPlaying()) {
+            App.Bus().post(MusicService.ControlEvent.PAUSE);
+            return;
+        }
+
+        App.Bus().post(MusicService.ControlEvent.START);
+    }
+
+    @OnClick(R.id.prev_button)
+    void onClickPrev() {
+        App.Bus().post(MusicService.ControlEvent.PREV);
+    }
+
+    @OnClick(R.id.next_button)
+    void onClickNext() {
+        App.Bus().post(MusicService.ControlEvent.NEXT);
+    }
+    //endregion
+
+    //region otto
+    @Subscribe
+    public void subscribeMusicState(MusicService.State state) {
+        switch (state) {
+            case PLAY:
+                setStartStopButtonText();
+                break;
+            case PAUSE:
+                setStartStopButtonText();
+                break;
+        }
+    }
+    //endregion
+
     private void fetchPlayList() {
         PlayListAdapter adapter = new PlayListAdapter(getActivity(), 0, mPlayingModel.getPlayList());
         mListView.setAdapter(adapter);
+    }
+
+    private void setStartStopButtonText() {
+        if (App.Models().getPlayingModel().isPlaying()) {
+            mStartStopButton.setText("停止");
+        } else {
+            mStartStopButton.setText("再生");
+        }
     }
 
     static class PlayListAdapter extends ArrayAdapter<PlayListEntity> {

@@ -25,6 +25,13 @@ public class PlayingStatus extends PrefModel {
     @PrefKey
     private int position;
 
+    public void init() {
+        type = null;
+        mediaId = null;
+        number = 0;
+        position = 0;
+    }
+
     public static class TypeSerializer extends com.os.operando.garum.serializers.TypeSerializer<Type, String> {
 
         @Override

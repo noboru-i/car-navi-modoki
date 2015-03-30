@@ -76,11 +76,11 @@ public class MusicService extends Service {
     public void subscribeControlEvent(ControlEvent event) {
         switch (event) {
             case START:
-                playCurrent();
+                playCurrent(true);
                 changeState(State.PLAY);
                 break;
             case PLAY:
-                playCurrent();
+                playCurrent(false);
                 changeState(State.PLAY);
                 break;
             case PAUSE:
@@ -89,27 +89,29 @@ public class MusicService extends Service {
                 break;
             case NEXT:
                 mPlayingModel.next();
-                playCurrent();
+                playCurrent(true);
                 changeState(State.NEXT);
                 break;
             case PREV:
                 mPlayingModel.prev();
-                playCurrent();
+                playCurrent(true);
                 changeState(State.PREV);
                 break;
         }
     }
 
-    private void playCurrent() {
+    private void playCurrent(boolean force) {
         String mediaId = mPlayingModel.getCurrentEntity().getMusic().getMediaId();
-        try {
-            mMediaPlayer.reset();
-            mMediaPlayer.setDataSource(getApplicationContext(), Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaId));
-            mMediaPlayer.setLooping(false);
-            mMediaPlayer.prepare();
-            mMediaPlayer.start();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (force || !mMediaPlayer.isPlaying()) {
+            try {
+                mMediaPlayer.reset();
+                mMediaPlayer.setDataSource(getApplicationContext(), Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaId));
+                mMediaPlayer.setLooping(false);
+                mMediaPlayer.prepare();
+                mMediaPlayer.start();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         PlayingStatus playingStatus = new PlayingStatus();
@@ -122,6 +124,7 @@ public class MusicService extends Service {
 
     private void pause() {
         mMediaPlayer.pause();
+
         App.Models().getPlayingModel().setPlaying(false);
     }
 

@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import butterknife.ButterKnife;
+import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.R;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Movie;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
@@ -130,7 +131,7 @@ public class MainActivity extends ActionBarActivity
                 new String[]{Environment.getExternalStorageDirectory().toString()},
                 null,
                 (path, uri) -> {
-                    initContent();
+                    runOnUiThread(this::initContent);
                 });
     }
 
@@ -204,17 +205,23 @@ public class MainActivity extends ActionBarActivity
     }
 
     private void initFragments() {
-//        addArtistFragment();
-        addMoviesFragment();
-
         PlayingStatus playingStatus = new PlayingStatus();
         if (playingStatus.getType() == PlayingStatus.Type.MOVIE) {
+            addMoviesFragment();
             if (playingStatus.getMediaId() != null) {
                 MoviePlayActivity.startActivity(this, playingStatus.getMediaId());
             }
+            return;
         } else if (playingStatus.getType() == PlayingStatus.Type.MUSIC) {
+            addArtistFragment();
             addPlayListFragment();
+
+            App.Bus().post(MusicService.ControlEvent.PLAY);
+            return;
         }
+
+        // TODO ダッシュボードっぽい何かを表示する？
+        addArtistFragment();
     }
 
     private void addArtistFragment() {

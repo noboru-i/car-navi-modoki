@@ -7,11 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.squareup.otto.Subscribe;
 
 import java.util.List;
 
@@ -30,13 +27,11 @@ public class AlbumFragment extends Fragment {
 
     @InjectView(R.id.list)
     ListView mListView;
-    @InjectView(R.id.start_stop_button)
-    Button mStartStopButton;
     @InjectView(R.id.artist_name)
     TextView mArtistNameView;
 
-    private String mArtist;
     private PlayingModel mPlayingModel;
+    private String mArtist;
 
     public static AlbumFragment newInstance(String artist) {
         final AlbumFragment f = new AlbumFragment();
@@ -60,35 +55,18 @@ public class AlbumFragment extends Fragment {
         if (getArguments() != null) {
             mArtist = getArguments().getString(ARG_ARTIST);
         }
-        mPlayingModel = App.Models().getPlayingModel();
 
-        setStartStopButtonText();
+        mPlayingModel = App.Models().getPlayingModel();
 
         fetchAlbums();
         mArtistNameView.setText(mArtist);
 
         return view;
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        App.Bus().register(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        App.Bus().unregister(this);
-    }
     //endregion
 
-    @OnClick(R.id.start_stop_button)
-    void onClickStartStop() {
-        if (App.Models().getPlayingModel().isPlaying()) {
-            App.Bus().post(MusicService.ControlEvent.PAUSE);
-            return;
-        }
+    @OnClick(R.id.play_all)
+    public void onClickPlayAll() {
         mPlayingModel.reset();
         for (int i = 0; i < mListView.getCount(); i++) {
             String album = (String) mListView.getItemAtPosition(i);
@@ -100,29 +78,7 @@ public class AlbumFragment extends Fragment {
             }
         }
 
-        App.Bus().post(MusicService.ControlEvent.START);
-    }
-
-    @OnClick(R.id.prev_button)
-    void onClickPrev() {
-        App.Bus().post(MusicService.ControlEvent.PREV);
-    }
-
-    @OnClick(R.id.next_button)
-    void onClickNext() {
-        App.Bus().post(MusicService.ControlEvent.NEXT);
-    }
-
-    @Subscribe
-    public void subscribeMusicState(MusicService.State state) {
-        switch (state) {
-            case PLAY:
-                setStartStopButtonText();
-                break;
-            case PAUSE:
-                setStartStopButtonText();
-                break;
-        }
+        App.Bus().post(MusicService.ControlEvent.PLAY);
     }
 
     private void fetchAlbums() {
@@ -131,14 +87,6 @@ public class AlbumFragment extends Fragment {
 
         AlbumAdapter adapter = new AlbumAdapter(getActivity(), 0, albums);
         mListView.setAdapter(adapter);
-    }
-
-    private void setStartStopButtonText() {
-        if (App.Models().getPlayingModel().isPlaying()) {
-            mStartStopButton.setText("停止");
-        } else {
-            mStartStopButton.setText("再生");
-        }
     }
 
     static class AlbumAdapter extends ArrayAdapter<String> {
