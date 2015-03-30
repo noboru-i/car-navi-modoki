@@ -19,6 +19,7 @@ import java.util.List;
 import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
 import hm.orz.chaos114.android.carnavimodoki.model.PlayingModel;
+import hm.orz.chaos114.android.carnavimodoki.pref.entity.PlayingStatus;
 import lombok.Data;
 import lombok.Setter;
 
@@ -100,8 +101,8 @@ public class MusicService extends Service {
     }
 
     private void playCurrent() {
+        String mediaId = mPlayingModel.getCurrentEntity().getMusic().getMediaId();
         try {
-            String mediaId = mPlayingModel.getCurrentEntity().getMusic().getMediaId();
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(getApplicationContext(), Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaId));
             mMediaPlayer.setLooping(false);
@@ -110,6 +111,12 @@ public class MusicService extends Service {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        PlayingStatus playingStatus = new PlayingStatus();
+        playingStatus.setType(PlayingStatus.Type.MUSIC);
+        playingStatus.setMediaId(mediaId);
+        playingStatus.save();
+
         App.Models().getPlayingModel().setPlaying(true);
     }
 

@@ -23,6 +23,7 @@ import hm.orz.chaos114.android.carnavimodoki.fragment.AlbumFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.ArtistFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.MoviesFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.PlayListFragment;
+import hm.orz.chaos114.android.carnavimodoki.pref.entity.PlayingStatus;
 import hm.orz.chaos114.android.carnavimodoki.service.MusicService;
 
 public class MainActivity extends ActionBarActivity
@@ -75,11 +76,13 @@ public class MainActivity extends ActionBarActivity
             case R.id.action_settings:
                 return true;
             case R.id.action_play_list:
-                Fragment fragment = new PlayListFragment();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(android.R.id.content, fragment, "play_list");
-                ft.addToBackStack(null);
-                ft.commit();
+                addPlayListFragment();
+                return true;
+            case R.id.action_music:
+                addArtistFragment();
+                return true;
+            case R.id.action_movie:
+                addMoviesFragment();
                 return true;
         }
 
@@ -111,9 +114,7 @@ public class MainActivity extends ActionBarActivity
     //region MoviesFragment.OnMovieSelectedListener
     @Override
     public void onMovieSelected(Movie movie) {
-        Intent intent = new Intent(this, MoviePlayActivity.class);
-        intent.putExtra(MoviePlayActivity.EXTRA_MEDIA_ID, movie.getMediaId());
-        startActivity(intent);
+        MoviePlayActivity.startActivity(this, movie.getMediaId());
     }
     //endregion
 
@@ -136,8 +137,7 @@ public class MainActivity extends ActionBarActivity
     private void initContent() {
         long count = Music.getCount();
         if (count != 0) {
-            addArtistFragment();
-//            addMoviesFragment();
+            initFragments();
             return;
         }
 
@@ -151,8 +151,7 @@ public class MainActivity extends ActionBarActivity
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                addArtistFragment();
-//                addMoviesFragment();
+                initFragments();
             }
 
             private void initMusic() {
@@ -204,6 +203,20 @@ public class MainActivity extends ActionBarActivity
         }.execute();
     }
 
+    private void initFragments() {
+//        addArtistFragment();
+        addMoviesFragment();
+
+        PlayingStatus playingStatus = new PlayingStatus();
+        if (playingStatus.getType() == PlayingStatus.Type.MOVIE) {
+            if (playingStatus.getMediaId() != null) {
+                MoviePlayActivity.startActivity(this, playingStatus.getMediaId());
+            }
+        } else if (playingStatus.getType() == PlayingStatus.Type.MUSIC) {
+            addPlayListFragment();
+        }
+    }
+
     private void addArtistFragment() {
         ArtistFragment fragment = new ArtistFragment();
         getFragmentManager().beginTransaction().add(android.R.id.content, fragment, "artist").commit();
@@ -212,5 +225,13 @@ public class MainActivity extends ActionBarActivity
     private void addMoviesFragment() {
         MoviesFragment fragment = new MoviesFragment();
         getFragmentManager().beginTransaction().add(android.R.id.content, fragment, "movies").commit();
+    }
+
+    private void addPlayListFragment() {
+        Fragment fragment = new PlayListFragment();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(android.R.id.content, fragment, "play_list");
+        ft.addToBackStack(null);
+        ft.commit();
     }
 }

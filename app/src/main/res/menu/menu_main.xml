@@ -12,4 +12,14 @@
         android:title="@string/action_play_list"
         android:orderInCategory="101"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_music"
+        android:title="@string/action_music"
+        android:orderInCategory="102"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_movie"
+        android:title="@string/action_movie"
+        android:orderInCategory="103"
+        app:showAsAction="never"/>
 </menu>
