@@ -1,6 +1,8 @@
 package hm.orz.chaos114.android.carnavimodoki.receiver;
 
+import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
@@ -16,7 +18,14 @@ public class PowerConnectionReceiver extends BroadcastReceiver {
                 startApplication(context);
                 break;
             case Intent.ACTION_POWER_DISCONNECTED:
-                // TODO ディスプレイを切る
+                // ディスプレイを切る
+                ComponentName cn = new ComponentName(context, DeviceAdminReceiver.class);
+                DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+                if (dpm.isAdminActive(cn)) {
+                    dpm.lockNow();
+                }
+
+                // 音楽を止める
                 App.Bus().post(MusicService.ControlEvent.PAUSE);
                 break;
         }

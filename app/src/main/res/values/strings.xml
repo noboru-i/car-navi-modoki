@@ -5,4 +5,7 @@
     <string name="action_play_list">PlayList</string>
     <string name="action_music">Music</string>
     <string name="action_movie">Movie</string>
+
+    <string name="device_admin_label">Car Navi Modoki</string>
+    <string name="device_admin_description">バッテリー駆動になった時に、画面を消すためです。</string>
 </resources>

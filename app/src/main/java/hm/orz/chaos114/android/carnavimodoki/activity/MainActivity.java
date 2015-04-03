@@ -1,8 +1,12 @@
 package hm.orz.chaos114.android.carnavimodoki.activity;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaScannerConnection;
@@ -13,6 +17,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import butterknife.ButterKnife;
 import hm.orz.chaos114.android.carnavimodoki.App;
@@ -25,12 +30,15 @@ import hm.orz.chaos114.android.carnavimodoki.fragment.ArtistFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.MoviesFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.PlayListFragment;
 import hm.orz.chaos114.android.carnavimodoki.pref.entity.PlayingStatus;
+import hm.orz.chaos114.android.carnavimodoki.receiver.DeviceAdminReceiver;
 import hm.orz.chaos114.android.carnavimodoki.service.MusicService;
 
 public class MainActivity extends ActionBarActivity
         implements ArtistFragment.OnArtistSelectedListener,
         MoviesFragment.OnMovieSelectedListener,
         PlayListFragment.OnPlayListItemSelectedListener {
+    private static final int REQUEST_ADMIN = 100;
+
     private static final String ALBUM_ARTIST = "album_artist";
     private static final String[] MUSIC_COLUMNS = new String[]{
             MediaStore.Audio.Media._ID,
@@ -59,6 +67,19 @@ public class MainActivity extends ActionBarActivity
         startService(new Intent(this, MusicService.class));
 
         ButterKnife.inject(this);
+
+        ComponentName cn = new ComponentName(this, DeviceAdminReceiver.class);
+        DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+        if (!dpm.isAdminActive(cn)) {
+            new AlertDialog.Builder(this).setMessage("管理者権限が必要です。")
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, cn);
+                        intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                                "バッテリー駆動になった時に、画面を消すために必要です。");
+                        startActivityForResult(intent, REQUEST_ADMIN);
+                    }).setCancelable(false).show();
+        }
 
         scan();
     }
@@ -98,6 +119,21 @@ public class MainActivity extends ActionBarActivity
             super.onBackPressed();
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ADMIN:
+                if (resultCode == RESULT_OK) {
+                    Toast.makeText(this, "認証成功", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, "認証失敗", Toast.LENGTH_LONG).show();
+                }
+                return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     //endregion
 
     //region ArtistFragment.OnArtistSelectedListener
