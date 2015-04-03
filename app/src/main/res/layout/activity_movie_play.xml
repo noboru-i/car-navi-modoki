@@ -6,7 +6,7 @@
                 android:background="@android:color/black"
                 tools:context="hm.orz.chaos114.android.carnavimodoki.activity.MoviePlayActivity">
 
-    <VideoView
+    <SurfaceView
         android:id="@+id/video"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

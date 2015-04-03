@@ -18,7 +18,6 @@ import butterknife.OnClick;
 import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.R;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
-import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
 import hm.orz.chaos114.android.carnavimodoki.model.PlayingModel;
 import hm.orz.chaos114.android.carnavimodoki.service.MusicService;
 
@@ -70,12 +69,7 @@ public class AlbumFragment extends Fragment {
         mPlayingModel.reset();
         for (int i = 0; i < mListView.getCount(); i++) {
             String album = (String) mListView.getItemAtPosition(i);
-            List<Music> musics = Music.fetchByAlbum(album);
-            for (Music music : musics) {
-                PlayListEntity entity = new PlayListEntity();
-                entity.setMusic(music);
-                entity.saveNext();
-            }
+            mPlayingModel.insertAlbum(album);
         }
 
         App.Bus().post(MusicService.ControlEvent.PLAY);

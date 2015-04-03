@@ -22,6 +22,8 @@ import butterknife.OnClick;
 import butterknife.OnItemClick;
 import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.R;
+import hm.orz.chaos114.android.carnavimodoki.db.entity.Movie;
+import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
 import hm.orz.chaos114.android.carnavimodoki.model.PlayingModel;
 import hm.orz.chaos114.android.carnavimodoki.service.MusicService;
@@ -156,8 +158,15 @@ public class PlayListFragment extends Fragment {
                 convertView = mInflater.inflate(R.layout.row_artist, parent, false);
             }
             PlayListEntity entity = getItem(position);
+            Music music = entity.getMusic();
+            Movie movie = entity.getMovie();
             TextView nameView = (TextView) convertView.findViewById(R.id.name);
-            nameView.setText(entity.getMusic().getTitle());
+            if (music != null) {
+                nameView.setText(music.getTitle());
+            }
+            if (movie != null) {
+                nameView.setText(movie.getTitle());
+            }
             return convertView;
         }
     }

@@ -10,6 +10,8 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import static hm.orz.chaos114.android.carnavimodoki.util.LogUtil.*;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class PlayListEntity extends Model {
@@ -17,7 +19,9 @@ public class PlayListEntity extends Model {
     private int number;
     @Column(name = "music")
     private Music music;
-    
+    @Column(name = "movie")
+    private Movie movie;
+
     public static List<PlayListEntity> all() {
         return new Select()
                 .from(PlayListEntity.class)
@@ -43,6 +47,7 @@ public class PlayListEntity extends Model {
         } else {
             number = last.getNumber() + 1;
         }
+        d("next: " + this);
 
         save();
     }

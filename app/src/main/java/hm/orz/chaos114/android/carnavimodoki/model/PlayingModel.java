@@ -2,6 +2,8 @@ package hm.orz.chaos114.android.carnavimodoki.model;
 
 import java.util.List;
 
+import hm.orz.chaos114.android.carnavimodoki.db.entity.Movie;
+import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
 import lombok.Data;
 
@@ -34,5 +36,20 @@ public class PlayingModel {
 
     public void prev() {
         currentTrackNumber--;
+    }
+
+    public void insertAlbum(String album) {
+        List<Music> musics = Music.fetchByAlbum(album);
+        for (Music music : musics) {
+            PlayListEntity entity = new PlayListEntity();
+            entity.setMusic(music);
+            entity.saveNext();
+        }
+    }
+
+    public void insertMovie(Movie movie) {
+        PlayListEntity entity = new PlayListEntity();
+        entity.setMovie(movie);
+        entity.saveNext();
     }
 }

@@ -3,25 +3,30 @@ package hm.orz.chaos114.android.carnavimodoki.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.view.SurfaceHolder;
 
 import com.squareup.otto.Subscribe;
 
 import java.io.IOException;
-import java.util.List;
 
 import hm.orz.chaos114.android.carnavimodoki.App;
-import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
+import hm.orz.chaos114.android.carnavimodoki.db.entity.Movie;
+import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
 import hm.orz.chaos114.android.carnavimodoki.model.PlayingModel;
 import hm.orz.chaos114.android.carnavimodoki.pref.entity.PlayingStatus;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Setter;
+import lombok.EqualsAndHashCode;
+
+import static hm.orz.chaos114.android.carnavimodoki.util.LogUtil.*;
 
 public class MusicService extends Service {
     public enum ControlEvent {
@@ -29,7 +34,7 @@ public class MusicService extends Service {
         PLAY,
         PAUSE,
         NEXT,
-        PREV
+        PREV,
     }
 
     public enum State {
@@ -39,8 +44,31 @@ public class MusicService extends Service {
         PREV
     }
 
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    @AllArgsConstructor(suppressConstructorProperties = true)
+    public static class ChangeSizeState {
+        private int width;
+        private int height;
+    }
+
+    public class LocalBinder extends Binder {
+
+        public void setSurfaceHolder(final SurfaceHolder holder) {
+            debugMethod();
+            mHolder = holder;
+        }
+
+        public void releaseSurfaceHolder() {
+            mHolder = null;
+            mMediaPlayer.setDisplay(null);
+        }
+    }
+
+    private IBinder mBinder = new LocalBinder();
     private AudioManager mAudioManager;
     private MediaPlayer mMediaPlayer;
+    private SurfaceHolder mHolder;
 
     private PlayingModel mPlayingModel;
 
@@ -49,7 +77,15 @@ public class MusicService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        debugMethod();
+        return mBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        debugMethod();
+        mMediaPlayer.setDisplay(null);
+        return true;
     }
 
     @Override
@@ -74,6 +110,8 @@ public class MusicService extends Service {
 
     @Subscribe
     public void subscribeControlEvent(ControlEvent event) {
+        debugMethod();
+        d("event = " + event);
         switch (event) {
             case START:
                 playCurrent(true);
@@ -101,7 +139,17 @@ public class MusicService extends Service {
     }
 
     private void playCurrent(boolean force) {
-        String mediaId = mPlayingModel.getCurrentEntity().getMusic().getMediaId();
+        Music music = mPlayingModel.getCurrentEntity().getMusic();
+        Movie movie = mPlayingModel.getCurrentEntity().getMovie();
+        if (music != null) {
+            playMusic(music, force);
+        } else if (movie != null) {
+            playMovie(movie, force);
+        }
+    }
+
+    private void playMusic(Music music, boolean force) {
+        String mediaId = music.getMediaId();
         if (force || !mMediaPlayer.isPlaying()) {
             try {
                 mMediaPlayer.reset();
@@ -122,6 +170,49 @@ public class MusicService extends Service {
         App.Models().getPlayingModel().setPlaying(true);
     }
 
+    private void playMovie(Movie movie, boolean force) {
+        debugMethod();
+
+        Handler handler = new Handler();
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                String mediaId = movie.getMediaId();
+                if (force || !mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.reset();
+                    mMediaPlayer = new MediaPlayer();
+                    try {
+                        mMediaPlayer.setDataSource(getApplicationContext(),
+                                Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, mediaId));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                if (mHolder != null) {
+                    mMediaPlayer.setDisplay(mHolder);
+                }
+                mMediaPlayer.setOnVideoSizeChangedListener((mp, width, height) -> changeSizeState(mp));
+                mMediaPlayer.setOnPreparedListener(MusicService::changeSizeState);
+                if (force || !mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.setLooping(false);
+                    mMediaPlayer.prepareAsync();
+                    mMediaPlayer.setOnPreparedListener(mp -> mMediaPlayer.start());
+                } else {
+                    handler.post(() -> changeSizeState(mMediaPlayer));
+                }
+
+                PlayingStatus playingStatus = new PlayingStatus();
+                playingStatus.setType(PlayingStatus.Type.MOVIE);
+                playingStatus.setMediaId(mediaId);
+                playingStatus.save();
+
+                App.Models().getPlayingModel().setPlaying(true);
+                return null;
+            }
+        }.execute();
+    }
+
     private void pause() {
         mMediaPlayer.pause();
 
@@ -130,5 +221,9 @@ public class MusicService extends Service {
 
     private void changeState(State state) {
         App.Bus().post(state);
+    }
+
+    private static void changeSizeState(MediaPlayer mp) {
+        App.Bus().post(new ChangeSizeState(mp.getVideoWidth(), mp.getVideoHeight()));
     }
 }

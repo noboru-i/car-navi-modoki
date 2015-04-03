@@ -1,9 +1,9 @@
 package hm.orz.chaos114.android.carnavimodoki.fragment;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +16,10 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
+import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.R;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Movie;
-import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
+import hm.orz.chaos114.android.carnavimodoki.service.MusicService;
 
 public class MoviesFragment extends Fragment {
 
@@ -64,6 +65,7 @@ public class MoviesFragment extends Fragment {
 
     @OnItemClick(R.id.list)
     void onItemClick(int position) {
+        App.Bus().post(MusicService.ControlEvent.PAUSE);
         Movie movie = (Movie) mListView.getItemAtPosition(position);
         mListener.onMovieSelected(movie);
     }

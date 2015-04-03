@@ -3,7 +3,6 @@ package hm.orz.chaos114.android.carnavimodoki.pref.entity;
 import com.os.operando.garum.annotations.Pref;
 import com.os.operando.garum.annotations.PrefKey;
 import com.os.operando.garum.models.PrefModel;
-import com.os.operando.garum.serializers.TypeSerializer;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
