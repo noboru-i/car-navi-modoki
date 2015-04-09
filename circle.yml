@@ -1,0 +1,13 @@
+machine:
+  timezone: Asia/Tokyo
+dependencies:
+  override:
+    - echo y | android update sdk --no-ui --filter "android-21,build-tools-21.1.2"
+test:
+  override:
+    - echo "Nothing to do here"
+deployment:
+  master:
+    branch: master
+    commands:
+      - ./gradlew uploadDeployGateDebug

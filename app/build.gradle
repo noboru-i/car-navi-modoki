@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'deploygate'
 apply plugin: 'me.tatarka.retrolambda'
 
 repositories {
@@ -27,6 +28,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            applicationIdSuffix ".debug"
+        }
     }
 }
 
@@ -49,3 +53,20 @@ buildscript {
         classpath 'me.tatarka:gradle-retrolambda:2.5.0'
     }
 }
+
+deploygate {
+    userName = "$System.env.DEPLOYGATE_USER"
+    token = "$System.env.DEPLOYGATE_TOKEN"
+
+    apks {
+        debug {
+            sourceFile = file("${project.buildDir}/outputs/apk/app-debug.apk")
+        }
+        release {
+            sourceFile = file("${project.buildDir}/outputs/apk/app-release-unsigned.apk")
+        }
+    }
+}
+
+uploadDeployGateDebug.dependsOn assembleDebug
+uploadDeployGateRelease.dependsOn assembleDebug
