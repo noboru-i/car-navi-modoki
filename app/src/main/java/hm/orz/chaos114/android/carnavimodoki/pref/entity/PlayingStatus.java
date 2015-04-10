@@ -21,6 +21,9 @@ public class PlayingStatus extends PrefModel {
     private String mediaId;
     @PrefKey
     private int number;
+    /**
+     * 再生位置（msec）
+     */
     @PrefKey
     private int position;
 

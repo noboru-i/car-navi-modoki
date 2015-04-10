@@ -197,7 +197,11 @@ public class MusicService extends Service {
                 if (force || !mMediaPlayer.isPlaying()) {
                     mMediaPlayer.setLooping(false);
                     mMediaPlayer.prepareAsync();
-                    mMediaPlayer.setOnPreparedListener(mp -> mMediaPlayer.start());
+                    mMediaPlayer.setOnPreparedListener(mp -> {
+                        PlayingStatus playingStatus = new PlayingStatus();
+                        mMediaPlayer.seekTo(playingStatus.getPosition());
+                        mMediaPlayer.start();
+                    });
                 } else {
                     handler.post(() -> changeSizeState(mMediaPlayer));
                 }
@@ -215,6 +219,9 @@ public class MusicService extends Service {
 
     private void pause() {
         mMediaPlayer.pause();
+        PlayingStatus playingStatus = new PlayingStatus();
+        playingStatus.setPosition(mMediaPlayer.getCurrentPosition());
+        playingStatus.save();
 
         App.Models().getPlayingModel().setPlaying(false);
     }
