@@ -22,6 +22,7 @@ import hm.orz.chaos114.android.carnavimodoki.db.entity.Movie;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
 import hm.orz.chaos114.android.carnavimodoki.model.PlayingModel;
 import hm.orz.chaos114.android.carnavimodoki.pref.entity.PlayingStatus;
+import hm.orz.chaos114.android.carnavimodoki.util.NotificationUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -98,6 +99,8 @@ public class MusicService extends Service {
         mPlayingModel = App.Models().getPlayingModel();
 
         mMediaPlayer = new MediaPlayer();
+
+        NotificationUtil.startNotification(this);
     }
 
     @Override

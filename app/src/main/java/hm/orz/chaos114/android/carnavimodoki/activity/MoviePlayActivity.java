@@ -61,9 +61,13 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
     private String mMediaId;
 
     public static void startActivity(Activity activity, String mediaId) {
-        Intent intent = new Intent(activity, MoviePlayActivity.class);
+        activity.startActivity(getIntent(activity, mediaId));
+    }
+
+    public static Intent getIntent(Context context, String mediaId) {
+        Intent intent = new Intent(context, MoviePlayActivity.class);
         intent.putExtra(MoviePlayActivity.EXTRA_MEDIA_ID, mediaId);
-        activity.startActivity(intent);
+        return intent;
     }
 
     @Override
@@ -81,6 +85,9 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
         }
 
         mMediaId = getIntent().getStringExtra(EXTRA_MEDIA_ID);
+        if (mMediaId == null) {
+            throw new NullPointerException("media id is not null.");
+        }
 
         mSurfaceView.getHolder().addCallback(this);
     }
@@ -105,23 +112,6 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
         }
 
         App.Bus().unregister(this);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_movie_play, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     //region ButterKnife
