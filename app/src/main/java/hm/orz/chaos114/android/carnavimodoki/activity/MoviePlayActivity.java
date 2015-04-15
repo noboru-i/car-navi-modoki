@@ -15,6 +15,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import com.squareup.otto.Subscribe;
 
@@ -73,6 +74,7 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_movie_play);
 
         View decor = this.getWindow().getDecorView();
