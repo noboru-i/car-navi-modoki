@@ -8,12 +8,17 @@ import android.content.Intent;
 import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.R;
 import hm.orz.chaos114.android.carnavimodoki.activity.MoviePlayActivity;
+import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
 import hm.orz.chaos114.android.carnavimodoki.model.PlayingModel;
 
 public class NotificationUtil {
     public static void startNotification(Service service) {
         PlayingModel playingModel = App.Models().getPlayingModel();
-        String currentMediaId = playingModel.getCurrentEntity().getMovie().getMediaId();
+        PlayListEntity playListEntity = playingModel.getCurrentEntity();
+        String currentMediaId = null;
+        if (playListEntity != null) {
+            currentMediaId = playListEntity.getMovie().getMediaId();
+        }
         Intent notificationIntent = MoviePlayActivity.getIntent(service, currentMediaId);
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(service, 0, notificationIntent, 0);

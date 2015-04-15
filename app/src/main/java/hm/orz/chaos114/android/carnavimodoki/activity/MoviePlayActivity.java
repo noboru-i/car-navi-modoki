@@ -86,7 +86,7 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
 
         mMediaId = getIntent().getStringExtra(EXTRA_MEDIA_ID);
         if (mMediaId == null) {
-            throw new NullPointerException("media id is not null.");
+            mMediaId = App.Models().getPlayingModel().getCurrentEntity().getMovie().getMediaId();
         }
 
         mSurfaceView.getHolder().addCallback(this);
