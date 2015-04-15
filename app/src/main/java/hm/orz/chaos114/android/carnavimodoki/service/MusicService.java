@@ -71,6 +71,7 @@ public class MusicService extends Service {
     private SurfaceHolder mHolder;
 
     private PlayingModel mPlayingModel;
+    private String currentMediaId;
 
     public MusicService() {
     }
@@ -85,6 +86,7 @@ public class MusicService extends Service {
     public boolean onUnbind(Intent intent) {
         debugMethod();
         mMediaPlayer.setDisplay(null);
+        mHolder = null;
         return true;
     }
 
@@ -179,7 +181,7 @@ public class MusicService extends Service {
             @Override
             protected Void doInBackground(Void... params) {
                 String mediaId = movie.getMediaId();
-                if (force || !mMediaPlayer.isPlaying()) {
+                if (force || !mediaId.equals(currentMediaId)) {
                     mMediaPlayer.reset();
                     mMediaPlayer = new MediaPlayer();
                     try {
@@ -194,17 +196,22 @@ public class MusicService extends Service {
                 }
                 mMediaPlayer.setOnVideoSizeChangedListener((mp, width, height) -> changeSizeState(mp));
                 mMediaPlayer.setOnPreparedListener(MusicService::changeSizeState);
-                if (force || !mMediaPlayer.isPlaying()) {
+                if (force || !mediaId.equals(currentMediaId)) {
                     mMediaPlayer.setLooping(false);
                     mMediaPlayer.prepareAsync();
                     mMediaPlayer.setOnPreparedListener(mp -> {
                         PlayingStatus playingStatus = new PlayingStatus();
-                        mMediaPlayer.seekTo(playingStatus.getPosition());
-                        mMediaPlayer.start();
+                        if (playingStatus.getPosition() < mp.getDuration()) {
+                            mp.seekTo(playingStatus.getPosition());
+                        }
+                        mp.start();
                     });
                 } else {
+                    mMediaPlayer.start();
                     handler.post(() -> changeSizeState(mMediaPlayer));
                 }
+
+                currentMediaId = mediaId;
 
                 PlayingStatus playingStatus = new PlayingStatus();
                 playingStatus.setType(PlayingStatus.Type.MOVIE);

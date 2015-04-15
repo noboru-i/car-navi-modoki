@@ -198,9 +198,8 @@ public class MainActivity extends ActionBarActivity
                         MediaStore.Audio.Media.IS_MUSIC + " != 0",
                         null,
                         null);
-                cursor.moveToFirst();
 
-                do {
+                while (cursor.moveToNext()) {
                     String id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
                     String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
                     String artist = cursor.getString(cursor.getColumnIndex(ALBUM_ARTIST));
@@ -214,7 +213,7 @@ public class MainActivity extends ActionBarActivity
                     music.setArtist(artist);
                     music.setAlbum(album);
                     music.save();
-                } while (cursor.moveToNext());
+                }
                 cursor.close();
             }
 
@@ -225,16 +224,15 @@ public class MainActivity extends ActionBarActivity
                         null,
                         null,
                         null);
-                cursor.moveToFirst();
 
-                do {
+                while (cursor.moveToNext()) {
                     String id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
                     String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
                     Movie movie = new Movie();
                     movie.setMediaId(id);
                     movie.setTitle(title);
                     movie.save();
-                } while (cursor.moveToNext());
+                }
                 cursor.close();
             }
         }.execute();
