@@ -259,17 +259,32 @@ public class MainActivity extends ActionBarActivity
     }
 
     private void addArtistFragment() {
-        ArtistFragment fragment = new ArtistFragment();
+        Fragment fragment = getFragmentManager().findFragmentByTag("artist");
+        if (fragment == null) {
+            fragment = new ArtistFragment();
+        } else {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
         getFragmentManager().beginTransaction().add(android.R.id.content, fragment, "artist").commit();
     }
 
     private void addMoviesFragment() {
-        MoviesFragment fragment = new MoviesFragment();
+        Fragment fragment = getFragmentManager().findFragmentByTag("movies");
+        if (fragment == null) {
+            fragment = new MoviesFragment();
+        } else {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
         getFragmentManager().beginTransaction().add(android.R.id.content, fragment, "movies").commit();
     }
 
     private void addPlayListFragment() {
-        Fragment fragment = new PlayListFragment();
+        Fragment fragment = getFragmentManager().findFragmentByTag("play_list");
+        if (fragment == null) {
+            fragment = new PlayListFragment();
+        } else {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(android.R.id.content, fragment, "play_list");
         ft.addToBackStack(null);
