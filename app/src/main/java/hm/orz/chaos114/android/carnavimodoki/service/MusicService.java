@@ -200,7 +200,7 @@ public class MusicService extends Service {
                 mMediaPlayer.setOnVideoSizeChangedListener((mp, width, height) -> changeSizeState(mp));
                 mMediaPlayer.setOnPreparedListener(MusicService::changeSizeState);
                 if (force || !mediaId.equals(currentMediaId)) {
-                    mMediaPlayer.setLooping(false);
+                    mMediaPlayer.setLooping(true);
                     mMediaPlayer.prepareAsync();
                     mMediaPlayer.setOnPreparedListener(mp -> {
                         PlayingStatus playingStatus = new PlayingStatus();

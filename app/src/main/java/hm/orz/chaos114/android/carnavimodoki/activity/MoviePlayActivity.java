@@ -158,9 +158,9 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
     public void subscribeChangeSize(MusicService.ChangeSizeState changeSizeState) {
         debugMethod();
         if (changeSizeState == null) {
+            // 前回のものを使う
             changeSizeState = mChangeSizeState;
         }
-        mChangeSizeState = changeSizeState;
         // 横幅に合わせて、高さを設定
         Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
@@ -168,6 +168,8 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
         lp.width = screenSize.x;
         lp.height = (int) ((float) changeSizeState.getHeight() / changeSizeState.getWidth() * screenSize.x);
         mSurfaceView.setLayoutParams(lp);
+
+        mChangeSizeState = changeSizeState;
     }
     //endregion
 
