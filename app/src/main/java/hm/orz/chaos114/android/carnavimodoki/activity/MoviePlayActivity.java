@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -69,6 +70,7 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
 
     private SurfaceHolder mHolder;
     private String mMediaId;
+    private MusicService.ChangeSizeState mChangeSizeState;
 
     public static void startActivity(Activity activity, String mediaId) {
         activity.startActivity(getIntent(activity, mediaId));
@@ -132,6 +134,13 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
         App.Bus().unregister(this);
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        debugMethod();
+        subscribeChangeSize(null);
+    }
+
     //region ButterKnife
     @OnClick(R.id.video)
     public void onClickVideo() {
@@ -147,6 +156,11 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
     //region otto
     @Subscribe
     public void subscribeChangeSize(MusicService.ChangeSizeState changeSizeState) {
+        debugMethod();
+        if (changeSizeState == null) {
+            changeSizeState = mChangeSizeState;
+        }
+        mChangeSizeState = changeSizeState;
         // 横幅に合わせて、高さを設定
         Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
