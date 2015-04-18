@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -32,6 +33,9 @@ import static hm.orz.chaos114.android.carnavimodoki.util.LogUtil.*;
 
 public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolder.Callback {
     private static final String EXTRA_MEDIA_ID = "hm.orz.chaos114.android.carnavimodoki.extra.MEDIA_ID";
+    private static final int FULLSCREEN_VISIBILITY = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_FULLSCREEN
+            | View.SYSTEM_UI_FLAG_LOW_PROFILE;
 
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -51,6 +55,11 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
         public void onServiceDisconnected(ComponentName name) {
             debugMethod();
         }
+    };
+
+    private final Runnable mFullscreenRunnable = () -> {
+        View decor = getWindow().getDecorView();
+        decor.setSystemUiVisibility(FULLSCREEN_VISIBILITY);
     };
 
     private MusicService.LocalBinder mLocalBinder;
@@ -77,8 +86,15 @@ public class MoviePlayActivity extends ActionBarActivity implements SurfaceHolde
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_movie_play);
 
-        View decor = this.getWindow().getDecorView();
-        decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        final Handler handler = new Handler();
+        final View decor = this.getWindow().getDecorView();
+        decor.setSystemUiVisibility(FULLSCREEN_VISIBILITY);
+        decor.setOnSystemUiVisibilityChangeListener(visibility -> {
+            if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                handler.removeCallbacks(mFullscreenRunnable);
+                handler.postDelayed(mFullscreenRunnable, 3000);
+            }
+        });
 
         ButterKnife.inject(this);
 
