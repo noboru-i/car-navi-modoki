@@ -16,6 +16,12 @@ public final class LogUtil {
         }
     }
 
+    public static void e(String message, Exception e) {
+        if (BuildConfig.DEBUG) {
+            Log.e(getTag(), message, e);
+        }
+    }
+
     public static void debugMethod() {
         if (BuildConfig.DEBUG) {
             Log.d(getTag(), "");

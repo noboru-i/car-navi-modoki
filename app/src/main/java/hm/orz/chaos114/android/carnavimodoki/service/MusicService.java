@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.view.SurfaceHolder;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -191,7 +192,10 @@ public class MusicService extends Service {
                         mMediaPlayer.setDataSource(getApplicationContext(),
                                 Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, mediaId));
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        handler.post(() -> Toast.makeText(getApplicationContext(), "media not found.", Toast.LENGTH_LONG).show());
+                        e("", e);
+                        App.Models().getPlayingModel().reset();
+                        return null;
                     }
                 }
                 if (mHolder != null) {
