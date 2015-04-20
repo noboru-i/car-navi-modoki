@@ -8,18 +8,23 @@
         android:orderInCategory="100"
         app:showAsAction="never"/>
     <item
+        android:id="@+id/action_reload"
+        android:title="@string/action_reload"
+        android:orderInCategory="101"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/action_play_list"
         android:title="@string/action_play_list"
-        android:orderInCategory="101"
+        android:orderInCategory="110"
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_music"
         android:title="@string/action_music"
-        android:orderInCategory="102"
+        android:orderInCategory="111"
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_movie"
         android:title="@string/action_movie"
-        android:orderInCategory="103"
+        android:orderInCategory="112"
         app:showAsAction="never"/>
 </menu>

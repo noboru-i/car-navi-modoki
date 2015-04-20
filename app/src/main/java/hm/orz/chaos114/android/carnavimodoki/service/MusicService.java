@@ -100,8 +100,6 @@ public class MusicService extends Service {
         mPlayingModel = App.Models().getPlayingModel();
 
         mMediaPlayer = new MediaPlayer();
-
-        NotificationUtil.startNotification(this);
     }
 
     @Override
@@ -151,6 +149,9 @@ public class MusicService extends Service {
             playMusic(music, force);
         } else if (movie != null) {
             playMovie(movie, force);
+
+            // TODO musicの場合も必要
+            NotificationUtil.startNotification(this);
         }
     }
 

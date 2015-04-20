@@ -19,6 +19,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.activeandroid.query.Delete;
+
 import butterknife.ButterKnife;
 import hm.orz.chaos114.android.carnavimodoki.App;
 import hm.orz.chaos114.android.carnavimodoki.R;
@@ -81,7 +83,7 @@ public class MainActivity extends ActionBarActivity
                     }).setCancelable(false).show();
         }
 
-        scan();
+        scan(false);
     }
 
     @Override
@@ -96,6 +98,11 @@ public class MainActivity extends ActionBarActivity
 
         switch (id) {
             case R.id.action_settings:
+                return true;
+            case R.id.action_reload:
+                App.Models().getPlayingModel().reset();
+                new PlayingStatus().clear();
+                scan(true);
                 return true;
             case R.id.action_play_list:
                 addPlayListFragment();
@@ -162,18 +169,19 @@ public class MainActivity extends ActionBarActivity
     }
     //endregion
 
-    private void scan() {
+    private void scan(final boolean force) {
         MediaScannerConnection.scanFile(getApplicationContext(),
                 new String[]{Environment.getExternalStorageDirectory().toString()},
                 null,
                 (path, uri) -> {
-                    runOnUiThread(this::initContent);
+                    runOnUiThread(() -> initContent(force));
                 });
     }
 
-    private void initContent() {
+    private void initContent(boolean force) {
         long count = Music.getCount();
-        if (count != 0) {
+        if (!force && count != 0) {
+            // データ更新が必要無い場合
             initFragments();
             return;
         }
@@ -192,6 +200,7 @@ public class MainActivity extends ActionBarActivity
             }
 
             private void initMusic() {
+                new Delete().from(Music.class).execute();
                 ContentResolver cr = getApplicationContext().getContentResolver();
                 Cursor cursor = cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         MUSIC_COLUMNS,
@@ -218,6 +227,7 @@ public class MainActivity extends ActionBarActivity
             }
 
             private void initMovie() {
+                new Delete().from(Movie.class).execute();
                 ContentResolver cr = getApplicationContext().getContentResolver();
                 Cursor cursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                         VIDEO_COLUMNS,
