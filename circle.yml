@@ -4,7 +4,7 @@ machine:
   timezone: Asia/Tokyo
 dependencies:
   override:
-    - echo y | android update sdk --no-ui --filter "android-22,build-tools-22.0.1,extra-android-support"
+    - echo y | android update sdk --no-ui --filter "android-22,build-tools-22.0.1,extra-android-support,extra-android-m2repository"
 test:
   override:
     - echo "Nothing to do here"
