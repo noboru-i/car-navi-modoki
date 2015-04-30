@@ -70,6 +70,11 @@ dependencies {
     debugCompile 'com.facebook.stetho:stetho:1.0.0'
 }
 
+// Using Google Play Services causes retrolambda to fail
+retrolambda {
+    jvmArgs '-noverify'
+}
+
 buildscript {
     repositories {
         mavenCentral()
