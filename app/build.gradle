@@ -93,7 +93,7 @@ deploygate {
             sourceFile = file("${project.buildDir}/outputs/apk/app-debug.apk")
         }
         release {
-            sourceFile = file("${project.buildDir}/outputs/apk/app-release-unsigned.apk")
+            sourceFile = file("${project.buildDir}/outputs/apk/app-release.apk")
         }
     }
 }
