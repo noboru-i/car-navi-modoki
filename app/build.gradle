@@ -31,10 +31,17 @@ android {
             keyPassword "android"
         }
         release {
-            storeFile=file(project.properties.storeFile)
-            storePassword=project.properties.storePassword
-            keyAlias=project.properties.keyAlias
-            keyPassword=project.properties.keyPassword
+            if (System.getenv('CIRCLECI')) {
+                storeFile=file(System.getenv('STORE_FILE'))
+                storePassword=System.getenv('STORE_PASSWORD')
+                keyAlias=System.getenv('KEY_ALIAS')
+                keyPassword=System.getenv('KEY_PASSWORD')
+            } else {
+                storeFile=file(project.properties.storeFile)
+                storePassword=project.properties.storePassword
+                keyAlias=project.properties.keyAlias
+                keyPassword=project.properties.keyPassword
+            }
         }
     }
     buildTypes {
