@@ -1,5 +1,7 @@
 package hm.orz.chaos114.android.carnavimodoki;
 
+import android.content.Context;
+
 import com.activeandroid.ActiveAndroid;
 import com.os.operando.garum.Configuration;
 import com.os.operando.garum.Garum;
@@ -20,6 +22,7 @@ public class App extends android.app.Application {
         ActiveAndroid.initialize(this);
 
         initGarum();
+        initStetho();
     }
 
     public static synchronized Bus Bus() {
@@ -42,6 +45,16 @@ public class App extends android.app.Application {
         builder.setModelClasses(PlayingStatus.class);
         builder.setTypeSerializers(PlayingStatus.TypeSerializer.class);
         Garum.initialize(builder.create());
+    }
+
+    private void initStetho() {
+        try {
+            // debugビルドの場合のみ成功
+            Class<?> clazz = Class.forName("hm.orz.chaos114.android.carnavimodoki.util.StethoUtil");
+            clazz.getMethod("initStetho", Context.class).invoke(null, this);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     @Getter
