@@ -29,6 +29,7 @@ import hm.orz.chaos114.android.carnavimodoki.db.entity.Music;
 import hm.orz.chaos114.android.carnavimodoki.db.entity.PlayListEntity;
 import hm.orz.chaos114.android.carnavimodoki.fragment.AlbumFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.ArtistFragment;
+import hm.orz.chaos114.android.carnavimodoki.fragment.DashboardFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.MoviesFragment;
 import hm.orz.chaos114.android.carnavimodoki.fragment.PlayListFragment;
 import hm.orz.chaos114.android.carnavimodoki.pref.entity.PlayingStatus;
@@ -148,7 +149,7 @@ public class MainActivity extends ActionBarActivity
     public void onArtistSelected(String artist) {
         AlbumFragment fragment = AlbumFragment.newInstance(artist);
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(android.R.id.content, fragment, "album");
+        ft.add(android.R.id.content, fragment, "album");
         ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commit();
@@ -249,23 +250,33 @@ public class MainActivity extends ActionBarActivity
     }
 
     private void initFragments() {
+        addDashboardFragment();
+
         PlayingStatus playingStatus = new PlayingStatus();
         if (playingStatus.getType() == PlayingStatus.Type.MOVIE) {
             addMoviesFragment();
             if (playingStatus.getMediaId() != null) {
                 MoviePlayActivity.startActivity(this, playingStatus.getMediaId());
             }
-            return;
         } else if (playingStatus.getType() == PlayingStatus.Type.MUSIC) {
             addArtistFragment();
             addPlayListFragment();
 
             App.Bus().post(MusicService.ControlEvent.PLAY);
-            return;
         }
+    }
 
-        // TODO ダッシュボードっぽい何かを表示する？
-        addArtistFragment();
+    private void addDashboardFragment() {
+        Fragment fragment = getFragmentManager().findFragmentByTag("dashboard");
+        if (fragment == null) {
+            fragment = new DashboardFragment();
+        } else {
+            getFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+        getFragmentManager()
+                .beginTransaction()
+                .add(android.R.id.content, fragment, "dashboard")
+                .commit();
     }
 
     private void addArtistFragment() {
@@ -275,7 +286,11 @@ public class MainActivity extends ActionBarActivity
         } else {
             getFragmentManager().beginTransaction().remove(fragment).commit();
         }
-        getFragmentManager().beginTransaction().add(android.R.id.content, fragment, "artist").commit();
+        getFragmentManager()
+                .beginTransaction()
+                .add(android.R.id.content, fragment, "artist")
+                .addToBackStack(null)
+                .commit();
     }
 
     private void addMoviesFragment() {
@@ -285,7 +300,11 @@ public class MainActivity extends ActionBarActivity
         } else {
             getFragmentManager().beginTransaction().remove(fragment).commit();
         }
-        getFragmentManager().beginTransaction().add(android.R.id.content, fragment, "movies").commit();
+        getFragmentManager()
+                .beginTransaction()
+                .add(android.R.id.content, fragment, "movies")
+                .addToBackStack(null)
+                .commit();
     }
 
     private void addPlayListFragment() {
@@ -295,9 +314,9 @@ public class MainActivity extends ActionBarActivity
         } else {
             getFragmentManager().beginTransaction().remove(fragment).commit();
         }
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(android.R.id.content, fragment, "play_list");
-        ft.addToBackStack(null);
-        ft.commit();
+        getFragmentManager().beginTransaction()
+                .replace(android.R.id.content, fragment, "play_list")
+                .addToBackStack(null)
+                .commit();
     }
 }
