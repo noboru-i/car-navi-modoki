@@ -18,6 +18,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import com.activeandroid.query.Delete;
 
@@ -61,10 +62,21 @@ public class MainActivity extends ActionBarActivity
             MediaStore.Video.Media.TITLE
     };
 
+    public void hoge() {
+        // no-op
+    }
+
+    public void HOGEHOGE() {
+
+    }
+
     //region Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState)  ;;;;
+        super.onCreate(savedInstanceState);
+        ;
+        ;
+        ;
         setContentView(R.layout.activity_main);
         String hoge = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 

@@ -55,6 +55,9 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -83,6 +86,8 @@ buildscript {
         classpath 'me.tatarka:gradle-retrolambda:3.0.1'
     }
 }
+
+apply from: "https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/1.0.0/ci.gradle"
 
 deploygate {
     userName = "$System.env.DEPLOYGATE_USER"

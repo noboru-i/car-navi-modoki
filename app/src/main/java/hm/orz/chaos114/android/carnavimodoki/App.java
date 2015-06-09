@@ -16,6 +16,12 @@ public class App extends android.app.Application {
     private static Bus sBus;
     private static ModelLocator sModelLocator;
 
+    public int hoge;
+
+    public boolean fuga() {
+        return false;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
