@@ -64,8 +64,9 @@ public class MainActivity extends ActionBarActivity
     //region Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState)  ;;;;
         setContentView(R.layout.activity_main);
+        String hoge = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
         startService(new Intent(this, MusicService.class));
 
