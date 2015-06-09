@@ -22,6 +22,10 @@ public class App extends android.app.Application {
         return false;
     }
 
+    public void piyo(){
+
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
