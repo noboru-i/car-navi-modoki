@@ -17,12 +17,13 @@ public class App extends android.app.Application {
     private static ModelLocator sModelLocator;
 
     public int hoge;
+    public String HOGEHOGE;
 
-    public boolean fuga(){
+    public boolean fuga() {
         return false;
     }
 
-    public void piyo() {
+    public void piyo(){
     }
 
     @Override
