@@ -18,12 +18,11 @@ public class App extends android.app.Application {
 
     public int hoge;
 
-    public boolean fuga() {
+    public boolean fuga(){
         return false;
     }
 
-    public void piyo(){
-
+    public void piyo() {
     }
 
     @Override
