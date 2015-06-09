@@ -10,6 +10,7 @@ test:
     - ./gradlew check
     - gem install checkstyle_filter-git saddler saddler-reporter-github github_status_notifier
     - cat app/build/reports/checkstyle/checkstyle.xml | checkstyle_filter-git diff origin/master | saddler report --require saddler/reporter/github --reporter Saddler::Reporter::Github::PullRequestReviewComment
+    - github-status-notifier notify --exit-status $? --context "noboru-i/car-navi-modoki"
 deployment:
   master:
     branch: master
