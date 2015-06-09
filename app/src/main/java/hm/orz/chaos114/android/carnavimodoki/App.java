@@ -16,7 +16,7 @@ public class App extends android.app.Application {
     private static Bus sBus;
     private static ModelLocator sModelLocator;
 
-    public int hoge;
+    public int FUGA;
     public String HOGEHOGE;
 
     public boolean fuga() {
