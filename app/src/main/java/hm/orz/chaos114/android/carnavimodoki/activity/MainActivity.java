@@ -84,6 +84,8 @@ public class MainActivity extends ActionBarActivity
 
         ButterKnife.inject(this);
 
+        hoge.getBytes();
+
         ComponentName cn = new ComponentName(this, DeviceAdminReceiver.class);
         DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         if (!dpm.isAdminActive(cn)) {
