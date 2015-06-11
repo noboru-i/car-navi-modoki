@@ -4,18 +4,18 @@ gem install --no-document checkstyle_filter-git saddler saddler-reporter-github 
 
 ./gradlew check
 
-# checkstyle
+echo "checkstyle"
 cat app/build/reports/checkstyle/checkstyle.xml \
     | checkstyle_filter-git diff origin/master \
     | saddler report --require saddler/reporter/github --reporter Saddler::Reporter::Github::PullRequestReviewComment
 
-# findbugs
+echo "findbugs"
 cat app/build/reports/findbugs/findbugs.xml \
     | findbugs_translate_checkstyle_format translate \
     | checkstyle_filter-git diff origin/master \
     | saddler report --require saddler/reporter/github --reporter Saddler::Reporter::Github::PullRequestReviewComment
 
-# android lint
+echo "android lint"
 cat app/build/outputs/lint-results.xml \
     | android_lint_translate_checkstyle_format translate \
     | checkstyle_filter-git diff origin/master \
