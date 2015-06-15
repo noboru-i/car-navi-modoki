@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo $CIRCLE_PR_NUMBER
+
 if [ -z "${CIRCLE_PR_NUMBER}" ]; then
     exit 0
 fi
