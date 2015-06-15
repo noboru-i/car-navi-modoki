@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-echo $CIRCLE_PR_NUMBER
+echo "-----------------"
+echo $CI_PULL_REQUESTS
+echo "-----------------"
+echo $CI_PULL_REQUEST
+echo "-----------------"
 
 if [ -z "${CIRCLE_PR_NUMBER}" ]; then
     exit 0
