@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
 
-echo "-----------------"
-echo $CI_PULL_REQUESTS
-echo "-----------------"
-echo $CI_PULL_REQUEST
-echo "-----------------"
-
-if [ -z "${CIRCLE_PR_NUMBER}" ]; then
+if [ -z "${CI_PULL_REQUEST}" ]; then
     exit 0
 fi
 
