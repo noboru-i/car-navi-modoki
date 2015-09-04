@@ -13,3 +13,9 @@ deployment:
     branch: master
     commands:
       - ./gradlew assemble uploadDeployGate
+  release:
+    tag: /[0-9]+(\.[0-9]+)*/
+    commands:
+      - ./gradlew assemble
+      - scripts/release.sh app/build/outputs/apk/app-debug.apk app-debug.apk
+      - scripts/release.sh app/build/outputs/apk/app-release.apk app-release.apk
